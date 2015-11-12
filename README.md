@@ -7,7 +7,9 @@ Cisco Skillzone : data analysis track study notes
 - Most modern APIs use something like oauth
 - httr works well with Facebook, Google, Twitter, Github, etc.
 
-## Interacting more directly with files
+## Reading From Other Sources
+
+### Interacting more directly with files
 * file - open a connection to a text file
 * url - open a connection to a url 
 * gzfile - open a connection to a .gz file
@@ -15,7 +17,7 @@ Cisco Skillzone : data analysis track study notes
 * ?connections for more information
 * Remember to close connections
 
-## foreign package
+### foreign package
 * Loads data from Minitab, S, SAS, SPSS, Stata, Systat
 * Basic functions read.foo
   - read.arff (Weka)
