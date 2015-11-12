@@ -14,3 +14,13 @@ Cisco Skillzone : data analysis track study notes
 * bzfile - open a connection to a .bz2 file
 * ?connections for more information
 * Remember to close connections
+
+## foreign package
+* Loads data from Minitab, S, SAS, SPSS, Stata, Systat
+* Basic functions read.foo
+  - read.arff (Weka)
+  - read.dta (Stata)
+  - read.mtp (Minitab)
+  - read.octave (Octave)
+  - read.spss (SPSS)
+  - read.xport (SAS)
