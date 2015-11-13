@@ -26,3 +26,7 @@ Cisco Skillzone : data analysis track study notes
   - read.octave (Octave)
   - read.spss (SPSS)
   - read.xport (SAS)
+
+## Loop Functions
+
+### lapply
