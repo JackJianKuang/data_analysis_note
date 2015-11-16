@@ -1,0 +1,1 @@
+## vapply is similar to sapply, but has a pre-specified type of return value, so it can be safer (and sometimes faster) to use.

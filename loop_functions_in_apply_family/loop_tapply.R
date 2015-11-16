@@ -1,5 +1,5 @@
 # ------------------------- tapply --------------------------------
-# tapply is used to apply a function over subsets of a vector. I don't know why it's called tapply.
+# tapply is used to apply a function over subsets of a vector. 
 str(tapply)
 # function (X, INDEX, FUN = NULL, ..., simplify = TRUE)
 #   - X is a vector
