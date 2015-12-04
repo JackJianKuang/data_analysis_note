@@ -1,0 +1,206 @@
+---
+title: "Exploring and Visualizing - Learning R"
+output: html_document
+---
+```{r}
+# install.packages("learningr")
+library(learningr)
+library(lattice)
+library(ggplot2)
+data(obama_vs_mccain)
+```
+# Scatterplots
+## Take 1: base Graphics
+```{r}
+# plot will simply ignore missing values
+obama_vs_mccain <- obama_vs_mccain[!is.na(obama_vs_mccain$Turnout),]
+with(obama_vs_mccain, plot(Income, Turnout))
+```
+
+`col` changes the color of the points. It accepts any of the named colors returned by `colors`, or an HTML-style hex value like `"#123456"`. 
+`pch` (short for "plot character") change the shape of the points.
+```{r}
+with(obama_vs_mccain, plot(Income, Turnout, col="violet", pch=20))
+```
+
+`log` set log scales. log = "x" means use a logarithmic x-scale, log = "y" means use a logarithmic y-scale, and log = "xy" makes both scales logarithmic.
+```{r}
+with(obama_vs_mccain, plot(Income, Turnout, log = "y"))
+with(obama_vs_mccain, plot(Income, Turnout, log = "xy"))
+```
+
+We can see that there is a definite positive correlation between income and turnout, and it's stronger on the log-log scale. A further question is, "Does the relationship hold across all of the USA?" 
+To answer this, we can split the data up into the 10 Standard Federal Regions given in the Region column, and plot each of the subsets in a "matrix" in one figure.  
+`par` can be used to set or query graphical parameters.  
+`mar` A numerical vector of the form c(bottom, left, top, right) which gives the number of lines of margin to be specified on the four sides of the plot. The default is c(5, 4, 4, 2) + 0.1.  
+`oma` A vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.  
+`mgp` The margin line (in mex units) for the axis title, axis labels and axis line. Note that mgp[1] affects title whereas mgp[2:3] affect axis. The default is c(3, 1, 0).  
+The `layout` function is used to control the layout of the multiple plots in the matrix. 
+```{r}
+par(mar = c(3, 3, 0.5, 0.5), oma = rep.int(0, 4), mgp = c(2, 1, 0))
+regions <- levels(obama_vs_mccain$Region)
+plot_numbers <- seq_along(regions)
+layout(matrix(plot_numbers, ncol = 5, byrow = TRUE))
+for(region in regions)
+{
+  regional_data <- subset(obama_vs_mccain, Region == region)
+  with(regional_data,  plot(Income, Turnout))
+}
+```
+
+## Take 2: lattice Graphics
+The lattice equivalent of plot is xyplot.  
+It uses a formula interface (yvar ~ xvar) to specify the variables for the x and y coordinates.  
+Conveniently, xyplot (and other lattice functions) takes a data argument that tells it which data frame to look for variables in.
+```{r}
+xyplot(Turnout ~ Income, obama_vs_mccain)
+```
+
+Many of the options for changing plot features are the same as those in base graphics.
+```{r}
+xyplot(Turnout ~ Income, obama_vs_mccain, col = "violet", pch = 20)
+```
+
+## Take 3: ggplot2 Graphics
+Each plot is constructed with a call to the ggplot function,  
+which takes a data frame as its first argument  
+and an aesthetic as its second. In practice, that means passing the columns for the x and y variables to the aes function.  
+We then add a geom to tell the plot to display some points.
+```{r}
+ggplot(obama_vs_mccain, aes(Income, Turnout)) + geom_point()
+ggplot(obama_vs_mccain, aes(Income, Turnout)) + 
+    geom_point(color="violet", shape=20)
+```
+
+To set a log scale, we add a `scale` for each axis.  
+The `breaks` argument specifies the locations of the axis ticks. 
+```{r}
+ggplot(obama_vs_mccain, aes(Income, Turnout)) +
+    geom_point() +
+    scale_x_log10(breaks = seq(2e4, 4e4, 1e4)) +
+    scale_y_log10(breaks = seq(50, 75, 5))
+```
+
+To split the plot into individual panels, we add a `facet`. Like the `lattice` plots, facets take a formula argument.
+```{r}
+ggplot(obama_vs_mccain, aes(Income, Turnout)) +
+    geom_point() +
+    scale_x_log10(breaks = seq(2e4, 4e4, 1e4)) +
+    scale_y_log10(breaks = seq(50, 75, 5)) +
+    facet_wrap(~ Region, ncol = 4)
+```
+
+As with lattice, ggplots can be stored in variables and added to sequentially.
+```{r}
+(gg1 <- ggplot(obama_vs_mccain, aes(Income, Turnout)) +
+    geom_point()     
+)
+(gg2 <- gg1 + 
+    facet_wrap(~ Region, ncol = 5) +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+)
+```
+
+# Line Plots
+```{r}
+with(
+    crab_tag$daylog,
+    plot(Date, -Max.Depth, type = "l", ylim = c(-max(Max.Depth), 0))
+)
+with(
+    crab_tag$daylog,
+    lines(Date, -Min.Depth, col="blue")
+)
+
+library(lattice)
+xyplot(-Min.Depth + -Max.Depth ~ Date, crab_tag$daylog, type="l")
+```
+
+# Histograms
+## base r
+```{r}
+with(obama_vs_mccain, hist(Obama))
+with(obama_vs_mccain,
+    hist(Obama, 4, main = "An exact number of bins")     
+)
+with(obama_vs_mccain,
+    hist(Obama, seq.int(0, 100, 5), main = "A vector of bin edges")
+)
+with(obama_vs_mccain,
+    hist(Obama, "FD", main = "The name of a method")
+)
+with(obama_vs_mccain,
+    hist(Obama, nclass.scott, main = "A function for the number of bins")
+)
+
+binner <- function(x) {
+    seq(min(x, na.rm = TRUE), max(x, na.rm = TRUE), length.out = 50)
+}
+with(obama_vs_mccain,
+    hist(Obama, binner, main = "A function for the bin edges") 
+)
+```
+
+The `freq` argument controls whether or not the histogram shows counts or probability densities in each bin. It defaults to TRUE if and only if the bins are equally spaced. 
+```{r}
+with(obama_vs_mccain, hist(Obama, freq = FALSE))
+```
+
+## lattice
+`lattice` histograms behave in a similar manner to `base` ones, except for the usual benefits of taking a `data` argument, allowing easy splitting into panels, and saving plots as a variable. 
+The `breaks` argument behaves in the same way as with `hist`.
+```{r}
+histogram(~ Obama, obama_vs_mccain)
+histogram(~ Obama, obama_vs_mccain, breaks=10)
+```
+
+`lattice` histograms support counts, probability densities, and percentage y-axes via the `type` argument, which takes the string "count", "density", or "percent". 
+```{r}
+histogram(~ Obama, obama_vs_mccain, type = "percent")
+```
+
+## ggplot2
+ggplot2 histograms are created by adding a histogram geom.  
+Bin specification is simple: just pass a numeric bin width to geom_histogram. 
+```{r}
+ggplot(obama_vs_mccain, aes(Obama)) +
+    geom_histogram(binwidth=5)
+```
+
+You can choose between counts and densities by passing the special names `..count..` or `..density..` to the y-aesthetic.
+```{r}
+ggplot(obama_vs_mccain, aes(Obama, ..density..)) +
+    geom_histogram(binwidth=5)
+```
+
+# Box Plots
+Box plots (sometimes called box and whisker plots) are a more space-efficient alternative that make it easy to compare many distributions at once.  
+good for compparing data
+## base
+The base function for drawing box plots is called `boxplot`; it is heavily inspired by lattice, insofar as it uses a formula interface and has a data argument.
+```{r}
+boxplot(Obama ~ Region, data = obama_vs_mccain)
+```
+
+This type of plot is often clearer if we reorder the box plots from smallest to largest, in some sense. 
+The `reorder` function changes the order of a factor’s levels, based upon some numeric score.
+```{r}
+ovm <- within(
+    obama_vs_mccain,
+    Region <- reorder(Region, Obama, median)
+)
+boxplot(Obama ~ Region, data = ovm)
+```
+
+## lattice
+`bwplot` (“bw” is short for “b (box) and w (whisker)”
+```{r}
+bwplot(Obama ~ Region, data = ovm)
+```
+
+## ggplot2
+```{r}
+ggplot(ovm, aes(Region, Obama)) +
+    geom_boxplot()
+```
+
